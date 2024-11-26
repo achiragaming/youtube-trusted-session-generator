@@ -4,7 +4,7 @@ import logging
 import sys
 from pathlib import Path
 from typing import Optional
-
+import os
 import nodriver
 
 from potoken_generator.extractor import PotokenExtractor, TokenInfo
@@ -72,16 +72,21 @@ Retrieve potoken using Chromium runned by nodriver, serve it on a json endpoint
     token regeneration by accessing http://127.0.0.1:8080/update
     '''
     parser = argparse.ArgumentParser(description=description, formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument('-o', '--oneshot', action='store_true', default=False,
-                        help='Do not start server. Generate token once, print it and exit')
-    parser.add_argument('--update-interval', '-u', type=int, default=300,
-                        help='How ofthen new token is generated, in seconds (default: %(default)s)')
-    parser.add_argument('--port', '-p', type=int, default=8080,
-                        help='Port webserver is listening on (default: %(default)s)')
-    parser.add_argument('--bind', '-b', default='127.0.0.1',
-                        help='Address webserver binds to (default: %(default)s)')
-    parser.add_argument('--chrome-path', '-c', type=Path, default=None,
-                        help='Path to the Chromiun executable')
+    parser.add_argument('-o', '--oneshot', action='store_true', 
+                       default=os.environ.get('POTOKEN_ONESHOT', 'false').lower() == 'true',
+                       help='Do not start server. Generate token once, print it and exit')
+    parser.add_argument('--update-interval', '-u', type=int, 
+                       default=int(os.environ.get('POTOKEN_UPDATE_INTERVAL', 300)),
+                       help='How ofthen new token is generated, in seconds (default: %(default)s)')
+    parser.add_argument('--port', '-p', type=int,
+                       default=int(os.environ.get('POTOKEN_PORT', 8080)),
+                       help='Port webserver is listening on (default: %(default)s)')
+    parser.add_argument('--bind', '-b',
+                       default=os.environ.get('POTOKEN_BIND', '127.0.0.1'),
+                       help='Address webserver binds to (default: %(default)s)')
+    parser.add_argument('--chrome-path', '-c', type=Path,
+                       default=os.environ.get('POTOKEN_CHROME_PATH', None),
+                       help='Path to the Chromiun executable')
     return parser.parse_args()
 
 
